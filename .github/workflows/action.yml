@@ -1,0 +1,50 @@
+name: 'GitHub Actions KZZ Reminder Bot...'
+
+on:
+  push:
+  schedule:
+    - cron: '0 23 * * *'
+
+jobs:
+  bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout codes'
+        uses: actions/checkout@master
+      - name: 'Pip install ics'
+        run: pip3 install ics
+      - name: 'Pip install requests'
+        run: pip3 install requests
+      - name: Python Dependency Installation
+      # You may pin to the exact commit or the version.
+      # uses: py-actions/py-dependency-install@79cf4055e989c617a0679dd99c84a83b2f347460
+        uses: py-actions/py-dependency-install@v2.0.2
+        with:
+          # Path to requirements.txt file
+          #path: requirements.txt # optional, default is requirements.txt
+          # Boolean for pip upgrade prior to the dependency installation (default='true')
+          update-pip: true # optional, default is true
+          # Boolean for setuptools install/upgrade prior to the dependency installation (default='true')
+          update-setuptools: true # optional, default is true
+          # Boolean for wheel install/upgrade prior to the dependency installation (default='true')
+          update-wheel: true # optional, default is true      
+      - name: 'Generate ics file'
+        run: bash ./start.sh
+      - name: 'Config user email'
+        run:  git config --local user.email "action@github.com"
+      - name: 'Config user name'
+        run: git config --local user.name "GitHub Action"
+      - name: 'Git diff'
+        run: git diff
+      - name: 'Git add '
+        run: git add .
+      - name: 'Git commit'
+        run: git commit -m "Add changes"
+      - name: 'GitHub Push'
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.TOKEN }}
+          branch: ${{ github.ref }}
+      - name: 'Print kzz.ics'
+        run: cat ./kzz.ics
+
